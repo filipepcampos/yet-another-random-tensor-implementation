@@ -5,7 +5,7 @@ use num_traits::Num;
 // Notes: This looks weird to me but clears up all traits required
 pub trait TensorValue: Clone + Default + Num {}
 
-impl<T: Clone + Default + Num> TensorValue for T {}
+impl<T: Clone + Default + Num + Copy> TensorValue for T {}
 
 pub struct TensorStorage<T> {
     storage: Vec<T>,
@@ -34,7 +34,21 @@ where
     }
 }
 
-impl<T> From<Vec<T>> for TensorStorage<T> {
+impl<T> From<&[T]> for TensorStorage<T>
+where
+    T: TensorValue,
+{
+    fn from(values: &[T]) -> Self {
+        Self {
+            storage: values.to_vec(),
+        }
+    }
+}
+
+impl<T> From<Vec<T>> for TensorStorage<T>
+where
+    T: TensorValue,
+{
     fn from(values: Vec<T>) -> Self {
         Self { storage: values }
     }
